@@ -1,1 +1,3 @@
 # jsml
+
+JavaScript Machine Learning
