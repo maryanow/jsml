@@ -39,7 +39,7 @@ function kmeans() {
 				}
 			}
 
-			// Assign datapoints to cluster
+			// Assign datapoints to nearest cluster
 			for (i = 0; i < n; i++) {
 				currClust = getCluster(data[i]);
 
