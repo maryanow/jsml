@@ -134,36 +134,9 @@ function gaussian() {
 		var det = math.determinant(covariances),
 			left = 1 / Math.sqrt(Math.pow(2 * Math.PI, dims) * det),
 			sub = math.subtractVectors(point, mean),
-			prob;
+			inside = (-.5 * math.dotProduct(math.outerProduct(math.inverse(covariances), sub), sub));
 
-		// console.log("id: " +ID)
-		// console.log("point:" + point)
-		// console.log("mean: " + mean)
-		// console.log("det:" + det)
-		// console.log("cov: " + covariances)
-		// console.log("left: " + left)
-
-// 		prob = sub;
-// 		console.log("point - mean: " + prob)
-
-// 		var inv = math.inverse(covariances)
-// console.log("cov-1: " + inv)
-// 		prob = math.outerProduct(inv, prob);
-// 		console.log("inv * point-mean: " + prob)
-
-// 		prob = math.dotProduct(prob, sub);
-// 		console.log("prob * point-mean: " + prob)
-
-// 		prob = prob * -.5;
-// 		console.log("* -.5: " + prob)
-
-// 		prob = Math.exp(prob);
-// 		console.log("exp: " +prob)
-
-		var inside = (-.5 * math.dotProduct(math.outerProduct(math.inverse(covariances), sub), sub))
-		prob = Math.exp(inside);
-
-		return left * prob;
+		return left * Math.exp(inside);
 	}
 
 	gauss.dim = function(d, val) {
