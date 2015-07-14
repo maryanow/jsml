@@ -117,6 +117,10 @@ function kmeans() {
 		return centroids;
 	}
 
+	my.clusters = function() {
+		return clusters;
+	}
+
 	function getCluster(point) {
 		for (var i = 0; i < k; i++) {
 			for (var j = 0; j < clusters[i].length; j++) {
