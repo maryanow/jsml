@@ -113,6 +113,10 @@ function kmeans() {
 		return (distortion / n);
 	}
 
+	my.centroids = function() {
+		return centroids;
+	}
+
 	function getCluster(point) {
 		for (var i = 0; i < k; i++) {
 			for (var j = 0; j < clusters[i].length; j++) {
