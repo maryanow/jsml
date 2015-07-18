@@ -127,7 +127,6 @@ function mathematics() {
 		return true;
 	}
 
-	// Inside of a larger array container, return the index of the object that matches array.
 	math.arrayIndexOf = function(container, array) {
 		for (var i = 0; i < container.length; i++) {
 			if (math.arrayEquals(container[i], array)) {
@@ -169,8 +168,11 @@ function mathematics() {
 	math.addMatrices = function(m1, m2) {
 		if (math.arrayEquals(math.shape(m1), math.shape(m2))) {
 			var result = math.zeroMatrix(m1.length, m1[0].length);
+
 			for (var i = 0; i < m1.length; i++) {
-				result.push(math.addVectors(m1[i], m2[i]));
+				for (var j = 0; j < m1[0].length; j++) {
+					result[i][j] = m1[i][j] + m2[i][j];
+				}
 			}
 
 			return result;
@@ -184,7 +186,9 @@ function mathematics() {
 		if (math.arrayEquals(math.shape(m1), math.shape(m2))) {
 			var result = math.zeroMatrix(m1.length, m1[0].length);
 			for (var i = 0; i < m1.length; i++) {
-				result.push(math.subtractVectors(m1[i], m2[i]));
+				for (var j = 0; j < m1[0].length; j++) {
+					result[i][j] = m1[i][j] - m2[i][j];
+				}
 			}
 
 			return result;
@@ -241,20 +245,31 @@ function mathematics() {
 	}
 
 	math.outerProduct = function (matrix, vector) {
-		var result = math.zeroVector(matrix[0].length),
-			pos = 0,
-			sum = 0;
+		var result,
+			sum;
 
-		for (var i = 0; i < matrix[0].length; i++) {
-			sum = 0;
-			for (var j = 0; j < matrix.length; j++) {
-				sum += matrix[j][i] * vector[j];
+		if (matrix[0].length) {		// Matrix
+			result = math.zeroVector(matrix[0].length);
+
+			for (var i = 0; i < matrix[0].length; i++) {
+				sum = 0;
+				for (var j = 0; j < matrix.length; j++) {
+					sum += matrix[j][i] * vector[j];
+				}
+
+				result[i] = sum;
 			}
-
-			result[pos] = sum;
-			pos++;
 		}
+		else {						// Vector
+			result = math.zeroMatrix(matrix.length, vector.length);
 
+			for (var i = 0; i < matrix.length; i++) {
+				for (var j = 0; j < vector.length; j++) {
+					result[i][j] = matrix[i] * vector[j];
+				}
+			}
+		}
+		
 		return result;
 	}
 

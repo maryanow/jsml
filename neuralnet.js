@@ -1,5 +1,7 @@
-function neuralnet() {
+function neuralNetwork() {
 	var math = mathematics(),
+		data,
+		output,
 		n,
 		dims,
 		mode,
@@ -8,11 +10,13 @@ function neuralnet() {
 		W,
 		U;
 
-	my.train = function(data, output, options) {
+	model.train = function(input, out, options) {
 		var options = options || {};
 
-		n = data.length;
-		dims = data[0].length;
+		data = input,
+		output = out,
+		n = data.length,
+		dims = data[0].length,
 		mode = options["mode"] || "c",
 		classes = output[0].length,
 		hiddenNodes = options["hiddenNodes"] || 8;
@@ -62,9 +66,9 @@ function neuralnet() {
 				W[i][j] = ((Math.random() * 2) * maxW) - maxW;
 			}
 		}
-		double maxU = (1 / Math.sqrt(hiddenNodes + 1));
-		for (int j = 0; j < classes; j++) {
-			for (int k = 0; k < hiddenNodes + 1; k++) {
+		var maxU = (1 / Math.sqrt(hiddenNodes + 1));
+		for (var j = 0; j < classes; j++) {
+			for (var k = 0; k < hiddenNodes + 1; k++) {
 				U[j][k] = ((Math.random() * 2) * maxU) - maxU;
 			}
 		}
@@ -72,6 +76,7 @@ function neuralnet() {
 		var epochs = 0,
 			count = 0,
 			input, targets;
+
 		while (epochs < maxEpochs) {
 			for (var i = 0; i < batch; i++) {
 				input = data[count];
@@ -92,7 +97,7 @@ function neuralnet() {
 
 				deltaB = math.subtractVectors(targets, y);
 				gradU = math.addMatrices(gradU, math.outerProduct(deltaB, math.vectorMultiplyScalar(h, -1)));
-				
+
 				for (var j = 0; j < U.length; j++) {
 					for (var k = 1; k < U[0].length; k++) {
 						noBiasU[j][k-1] = U[j][k];
@@ -104,7 +109,7 @@ function neuralnet() {
 				}
 
 				deltaA = math.vectorMultiplyElementwise(math.outerProduct(noBiasU, deltaB), math.vectorMultiplyElementwise(noBiasH, math.subtractVectors(math.oneVector(hiddenNodes), noBiasH)));
-				gradientW = math.addMatrices(gradientW, math.outerProduct(deltaA, math.vectorMultiplyScalar(input, -1)));
+				gradW = math.addMatrices(gradW, math.outerProduct(deltaA, math.vectorMultiplyScalar(input, -1)));
 
 				count = (count+1) % n;
 
@@ -133,11 +138,37 @@ function neuralnet() {
 		return model;
 	}
 
-	my.score = function() {
-		// Over all training data points, compute loss
+	model.score = function() {
+		var score = 0,
+			a = math.zeroVector(hiddenNodes),
+			h = math.zeroVector(hiddenNodes+1),
+			b = math.zeroVector(classes),
+			y = math.zeroVector(classes);
+
+		for (var i = 0; i < n; i++) {
+			var input = data[i],
+				targets = output[i];
+			
+			for (var l = 0; l < hiddenNodes; l++) {
+				a[l] = math.dotProduct(W[l], input);
+				h[l+1] = math.sigmoid(a[l]);
+			}
+
+			for (var c = 0; c < classes; c++) {
+				b[c] = math.dotProduct(U[c], h);
+			}
+
+			for (var c = 0; c < classes; c++) {
+				y[c] = outputActivation(b, c);
+			}
+
+			score += computeLoss(input, targets, y);
+		}
+
+		return score;
 	}
 
-	my.predict = function(point) {
+	model.predict = function(point) {
 		var a = math.zeroVector(hiddenNodes),
 			h = math.zeroVector(hiddenNodes+1),
 			b = math.zeroVector(classes),
@@ -180,6 +211,28 @@ function neuralnet() {
 		else {
 			throw new Error("Mode not recognized.");
 		}
+	}
+
+	function computeLoss(point, targets, prediction) {
+		var sum = 0;
+
+		if (mode === "c") {
+			for (var c = 0; c < classes; c++) {
+				sum -= targets[c] * Math.log(prediction[c]);
+			}
+		}
+		else if (mode === "r") {
+			for (var c = 0; c < classes; c++) {
+				sum += Math.pow(targets[c] - prediction[c], 2);
+			}
+		}
+		else {
+			for (var c = 0; c < classes; c++) {
+				sum -= ((targets[c] * Math.log(prediction[c])) + ((1 - targets[c]) * Math.log(1 - prediction[c])));
+			}
+		}
+
+		return sum;		
 	}
 
 	function standardizeData(data) {
